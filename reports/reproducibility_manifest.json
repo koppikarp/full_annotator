@@ -3,13 +3,13 @@
   "files": [
     {
       "path": ".gitignore",
-      "bytes": 207,
-      "sha256": "5a153833c20a7b197c4f949ec5939406fc36461a8399f05aa683e566713f5b11"
+      "bytes": 357,
+      "sha256": "71d5941b84445e378b3609d2a3a4da866833e0d90276d831ac3c1b86de0bae3e"
     },
     {
       "path": "README.md",
-      "bytes": 12973,
-      "sha256": "7368d68cf3f2f93b728a27c7fe9d029429ae65bd0ce1e590c07355d1a0d07464"
+      "bytes": 17818,
+      "sha256": "ed41fe2a55b91cc73a127b15c5378e215a49402213253b58314ac07128b6497f"
     },
     {
       "path": "annotated_base_ground_truth.csv",
@@ -537,6 +537,11 @@
       "sha256": "b1e70d4f7392c60e67adf76ff8e5cc58cd3aec4f3edac3b1edeeb82bb89f906c"
     },
     {
+      "path": "scripts/summarize_outputs.py",
+      "bytes": 32410,
+      "sha256": "0eae17b0aecfcf2fcc74fbd564cbf4c00aa6838d7daf56f2b802ce42c177bbb1"
+    },
+    {
       "path": "scripts/validate_fresh_centroids.py",
       "bytes": 8327,
       "sha256": "613b15210f7e8ef5467af5fc70f8199224b94657904a05c7c45eda6d0892cf97"
@@ -625,6 +630,11 @@
       "path": "tests/test_shared_analysis.py",
       "bytes": 7057,
       "sha256": "14bdae8607510ef6e25bd64de7588860985e11033e42c5ebdec97671b66c7388"
+    },
+    {
+      "path": "tests/test_summarize_outputs.py",
+      "bytes": 21099,
+      "sha256": "c9ef22ba775a17ab2316ac060e52c3b3a060420eef9c71b6c438a51298055734"
     },
     {
       "path": "tests/test_synthetic_scenarios.py",

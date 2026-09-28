@@ -73,6 +73,50 @@ A detector proposal is not proof of real signal. `has_signal` means at least one
 
 Library assignment requires a valid complete read, selected-reference Hamming distance at most 2, log-likelihood margin at least 0.8, and library-relative likelihood support at least 0.60. The nearest Hamming reference and selected likelihood reference can differ. Relative likelihood support is not a validated probability of a correct gene assignment. These thresholds are explicit configuration values, not selected to force high match rates.
 
+## Combine images, wells and plates
+
+`scripts/summarize_outputs.py` recursively discovers completed run manifests and reads each run's summary JSON and nucleus barcode CSV. Keep those three files together in each run folder; the original images, masks and large cycle tables are not needed. Moved/copied output folders work even when their manifests still contain paths from another machine. The script uses Python's standard library and reads one nucleus CSV at a time.
+
+Run from the directory where you want the aggregate reports saved. With the Biowulf environment at `/data/$USER/conda/envs/annotator` and the repository at `/data/$USER/full_annotator`:
+
+```sh
+conda activate "/data/$USER/conda/envs/annotator"
+python "/data/$USER/full_annotator/scripts/summarize_outputs.py" "/data/$USER/popcrop_results" --well all
+```
+
+For one well, or selected wells:
+
+```sh
+python "/data/$USER/full_annotator/scripts/summarize_outputs.py" "/data/$USER/popcrop_results" --well B2
+python "/data/$USER/full_annotator/scripts/summarize_outputs.py" "/data/$USER/popcrop_results" --well B2 B3
+```
+
+Well selection is case-insensitive. Optional `--plate Plate1` and `--experiment-date 2026-09-28` restrict the selection further. Without these filters, `--well B2` selects B2 across the discovered dates and plates, with separate date/plate/well subtotals. Dates are the recorded acquisition dates, not processing dates; missing dates remain an explicitly unspecified group. Choose another destination with `--out-dir /path/to/reports`. Existing aggregate files are preserved unless you pass `--overwrite`.
+
+Output names begin with `combined_all`, `combined_B2`, or the selected well names. Each selection produces:
+
+- `*_summary.md`: readable combined counts, unique genes, mapping rates, Hamming histograms, well totals and QC notes.
+- `*_summary.json`: the same statistics, full provenance, recorded analysis signatures and included/excluded runs. `status: complete` marks a finished aggregate export.
+- `*_groups.csv`: overall, experiment-date, plate and well statistics, identified by `group_level`. Each plate/well group remains scoped to its experiment date.
+- `*_genes.csv`: one row per unique assigned gene, with summed `cell_count`, percentages of accepted gene assignments and all nuclei, and the number of contributing runs.
+- `*_gene_counts_by_group.csv`: gene counts at overall, date, plate, well and individual-run levels. Filter by `group_level` before summing; levels intentionally describe the same observations at different scales.
+- `*_runs.csv`: counts and provenance for every included image/run, including its model/library/settings signature.
+- `*_skipped_runs.csv`: incomplete runs, filtered runs, duplicate copies and superseded reruns, with the reason and retained run ID where applicable.
+
+Repeated genes are combined by exact library gene name. Distinct nuclei assigned to the same gene or barcode remain separate observations. Unique gene counts use set union rather than adding each image's unique count. Only `decoding_status: matched` contributes to gene abundance. `ambiguous_gene` contributes to accepted barcode counts, including `unique_assigned_barcodes`, but not to gene counts. Percentages are computed from pooled counts; a zero denominator is `null` in JSON and blank in CSV.
+
+Copies of the same `run_id` are counted once after checking they agree. Reruns are recognized by acquisition date, plate, well, tile and position index; by default the latest **completed** run is retained, based on `run_started_utc`, independently of its match rate. Use `--reruns earliest` or `--reruns error` to change that policy. Conflicting source image names for the same field fail rather than silently dropping an image. Accurate field identifiers matter: existing outputs do not include image-content hashes, so renamed copies or missing acquisition metadata cannot always be recognized.
+
+The collector reconciles each included CSV against the run's counts and Hamming histograms and rejects duplicate nucleus IDs within a run. It also checks recorded library/model checksums and scientific settings, ignoring machine-specific paths and output/batch settings. Different analyses require an explicit `--allow-mixed-analysis` and produce a warning. Existing outputs do not record every software revision or externally supplied segmentation mask, so these checks cannot establish complete equivalence of all processing history.
+
+Spatial overlap between different tiles is **not corrected**. The requested initial version counts nuclei in each retained field; shared regions can therefore count the same biological nucleus twice. Unique gene names are still counted once in each aggregate group.
+
+The aggregator's tests run without the scientific environment:
+
+```sh
+python -m unittest discover -s tests -p test_summarize_outputs.py
+```
+
 ## Rebuild models and verify
 
 ```sh

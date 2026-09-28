@@ -11,3 +11,9 @@ dist/
 
 # Large raw reference image is kept locally, outside Git.
 /wellb2_002_002_RGB.tif
+
+# Combined experiment reports, when generated in the repository root.
+/combined_*_summary.*
+/combined_*_*.csv
+/.combined_*.lock
+/.popcrop-summary-*/
