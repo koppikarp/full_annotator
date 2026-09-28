@@ -16,21 +16,7 @@ python3.12 -m venv .venv
 .venv/bin/python -m pip install -r requirements-analysis.lock
 ```
 
-Code, trained models, annotation ground truths, library and compact validation results are included in Git. The large reference TIFF is stored losslessly compressed in the private [reference-data-v1 release](https://github.com/koppikarp/full_annotator/releases/tag/reference-data-v1). Cloning does not download it. Restore it before reproducing the reference analysis or retraining:
-
-```sh
-python3 scripts/fetch_reference_image.py
-```
-
-The helper uses authenticated `gh` to download the release asset, verifies the archive and reconstructed TIFF against the recorded SHA-256 checksums, and writes `wellb2_002_002_RGB.tif` at the project root. It uses bounded memory, preserves existing files, and reuses an identical verified image. Allow about 4.3 GB of free space during download and restoration; the temporary compressed download is removed afterward. Python's standard library is sufficient for this step.
-
-Alternatively, download `wellb2_002_002_RGB.tif.gz` from the release page in a browser and restore it without GitHub CLI:
-
-```sh
-python3 scripts/fetch_reference_image.py --archive /path/to/wellb2_002_002_RGB.tif.gz
-```
-
-The reference image is optional when analyzing your own compatible images with the included models.
+Code, trained models, annotation ground truths, library and compact validation results are included in Git. Raw images are kept separately. To reproduce the reference analysis or retrain, copy your existing `wellb2_002_002_RGB.tif` into the project root. Its size and SHA-256 checksum are recorded in `reports/reproducibility_manifest.json`. The reference image is optional when analyzing your own compatible images with the included models.
 
 ## Run
 
@@ -108,7 +94,7 @@ The old automated implementation remains available only through `analysis_mode: 
 
 ## Reproducible workspace
 
-There is one standalone raw reference image, `wellb2_002_002_RGB.tif`. Restore it from the private release using the setup instructions above. `data/reference_image.json` records the release identity and exact archive/raw sizes and checksums. The restored image is a regular file, so copying the complete folder to an HPC does not depend on a removed application directory or an external symlink. Git ignores this large local TIFF. The top-level annotation CSVs and coordinate/LUT profiles remain byte-identical. The profiles also mention older images that were already absent from the supplied workspace.
+The local workspace retains one standalone raw reference image, `wellb2_002_002_RGB.tif`, which is excluded from GitHub. Transfer it separately when reproducing the reference analysis on a new machine. It is a regular file, so copying the complete local folder to an HPC does not depend on a removed application directory or an external symlink. Git ignores this large local TIFF. The top-level annotation CSVs and coordinate/LUT profiles remain byte-identical. The profiles also mention older images that were already absent from the supplied workspace.
 
 `data/library/` contains the reference library and unique experimental design originals. `data/annotation_history/` preserves the two distinct annotation snapshots extracted from the old ZIP. Those snapshots are historical evidence and must not be automatically merged into current training data.
 
@@ -116,7 +102,7 @@ There is one standalone raw reference image, `wellb2_002_002_RGB.tif`. Restore i
 
 `reports/reference_run/` retains the compact validated nucleus table and run summaries as a comparison baseline. `reports/legacy_reference/` retains only the compressed masks and tables needed to reproduce the historical failure audit with `scripts/audit_legacy_detection.py`. Large generated image/cycle exports, duplicate TIFFs, scratch plots/test models, caches and the machine-specific virtual environment were removed. The small audit documents and original proposed plan retain the reasoning behind the changes; their historical paths describe the pre-cleanup workspace.
 
-For a fresh machine, create the environment and restore the reference image above, run the tests, then run `scripts/run_production_wellb2.py` to regenerate the full reference analysis. Retraining is optional when using the retained models. To reconstruct the models and their validation too, run the three training/validation commands above. Output directories are created automatically.
+For a fresh machine, create the environment and copy the reference image as described above, run the tests, then run `scripts/run_production_wellb2.py` to regenerate the full reference analysis. Retraining is optional when using the retained models. To reconstruct the models and their validation too, run the three training/validation commands above. Output directories are created automatically.
 
 `reports/workspace_cleanup.json` records moved and removed artifacts. `reports/reproducibility_manifest.json` records SHA-256 checksums for the retained scientific inputs, model artifacts, code and validation references.
 

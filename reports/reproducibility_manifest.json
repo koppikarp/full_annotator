@@ -1,15 +1,15 @@
 {
-  "description": "Reproducibility inputs, model artifacts, source, tests and reference evidence. Paths are relative to the project root. The raw reference TIFF is restored from the private GitHub release using data/reference_image.json. Generated future outputs and this manifest itself are not included.",
+  "description": "Reproducibility inputs, model artifacts, source, tests and reference evidence. Paths are relative to the project root. The raw reference TIFF is kept locally and must be transferred separately; it is not hosted on GitHub. Generated future outputs and this manifest itself are not included.",
   "files": [
     {
       "path": ".gitignore",
-      "bytes": 218,
-      "sha256": "225437558e7d8b7e52c6c30ec1b7a1b241732cb3614a5c81a88bbade3d7fa883"
+      "bytes": 207,
+      "sha256": "5a153833c20a7b197c4f949ec5939406fc36461a8399f05aa683e566713f5b11"
     },
     {
       "path": "README.md",
-      "bytes": 13803,
-      "sha256": "bc16c69dec3bd0bba99049e2d401e75ec55bd8c61ae57adbcb89cce4765b31e4"
+      "bytes": 12973,
+      "sha256": "7368d68cf3f2f93b728a27c7fe9d029429ae65bd0ce1e590c07355d1a0d07464"
     },
     {
       "path": "annotated_base_ground_truth.csv",
@@ -95,11 +95,6 @@
       "path": "data/library/v4.3_library_barcodes.csv",
       "bytes": 16146125,
       "sha256": "aaa26cb02365f1a7ffb3bbc8e755fb3a44cbed0c19d61063f69450ae21a2ad17"
-    },
-    {
-      "path": "data/reference_image.json",
-      "bytes": 390,
-      "sha256": "5b77bb5d8ed0f6831d422f191b7eb831f10d5c7cb7ef7b08aaed5d22fe280388"
     },
     {
       "path": "models/manual_parity/base_caller.joblib",
@@ -532,11 +527,6 @@
       "sha256": "13d0ec0fcf51c1ac17cfcfba25bc2964527b3f417c7bd7bcb24fb13396b12a00"
     },
     {
-      "path": "scripts/fetch_reference_image.py",
-      "bytes": 6577,
-      "sha256": "aef5bbd250809b7116b253fc02454204d7f9e45ef4612dbe64615bc06dcac0ee"
-    },
-    {
       "path": "scripts/retrain_manual_parity.py",
       "bytes": 12145,
       "sha256": "edf64f4819b8d0cba5f904fc35d3e08ab239239a8a335e95da6752ade00d1fc9"
@@ -620,11 +610,6 @@
       "path": "tests/test_preprocessing.py",
       "bytes": 3755,
       "sha256": "92d2d213358612f0970be2ead05a99e11d2f6f9679ff41412d7aa40aa36bc7af"
-    },
-    {
-      "path": "tests/test_reference_download.py",
-      "bytes": 5054,
-      "sha256": "8d81df5441f0057d0758f78db9a9730e2ac8766f63ad7eb6845760caa3801a5b"
     },
     {
       "path": "tests/test_run_outputs.py",

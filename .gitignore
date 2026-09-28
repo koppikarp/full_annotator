@@ -9,5 +9,5 @@ popcrop/annotation/uploads/
 build/
 dist/
 
-# Stored losslessly in the private reference-data-v1 GitHub release.
+# Large raw reference image is kept locally, outside Git.
 /wellb2_002_002_RGB.tif
