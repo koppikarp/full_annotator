@@ -1,0 +1,141 @@
+{
+  "total_nuclei": 5376,
+  "nuclei_with_detector_spots": 5371,
+  "nuclei_with_classified_signal": 3917,
+  "nuclei_without_classified_signal": 1459,
+  "accepted_library_assignments": 2491,
+  "accepted_barcode_sequences": 2493,
+  "gene_ambiguous_barcode_assignments": 2,
+  "unique_assigned_genes": 464,
+  "decoding_status_counts": {
+    "matched": 2491,
+    "no_signal": 1459,
+    "unmapped": 1285,
+    "ambiguous": 139,
+    "ambiguous_gene": 2
+  },
+  "signal_nuclei_nearest_hamming_histogram": {
+    "0": 1264,
+    "1": 859,
+    "2": 732,
+    "3": 704,
+    "4": 358
+  },
+  "accepted_assignments_selected_hamming_histogram": {
+    "0": 1257,
+    "1": 814,
+    "2": 420
+  },
+  "config": {
+    "analysis_mode": "manual",
+    "plate_id": "Plate1",
+    "well_id": "B2",
+    "tile_id": "14",
+    "random_seed": 42,
+    "channel_names": [
+      "Red",
+      "Green"
+    ],
+    "has_dapi_cycle": true,
+    "preprocessing": {
+      "camera_offset": 0.0,
+      "do_field_flattening": false,
+      "field_flattening_mode": "retrospective",
+      "field_flattening_per_cycle": true,
+      "field_flattening_per_well": true,
+      "reference_flatfield_path": null,
+      "registration_method": "none",
+      "registration_channel": 0,
+      "chromatic_registration": false,
+      "chromatic_shift_red_green": [
+        0.0,
+        0.0
+      ],
+      "psf_matching": false,
+      "psf_target_sigma": 1.0,
+      "saturation_threshold": 65520.0,
+      "unmixing_matrix": null
+    },
+    "blob_detection": {
+      "bg_filter_size": 35,
+      "bg_quantile": 0.15,
+      "noise_estimator": "mad",
+      "top_k_cycles": 3,
+      "persistence_threshold": 2.5,
+      "hysteresis_high": 4.0,
+      "hysteresis_low": 2.0,
+      "min_blob_area": 8,
+      "max_blob_fraction": 0.95
+    },
+    "blob_classifier": {
+      "model_path": "models/blob_classifier.joblib",
+      "prob_threshold": 0.7,
+      "use_heuristic_fallback": true,
+      "classifier_type": "logistic_regression"
+    },
+    "color_calling": {
+      "core_distance_percentile": 0.35,
+      "min_core_pixels": 4,
+      "min_connected_yellow_core": 4,
+      "yellow_core_min_ratio": 0.2,
+      "green_rim_override_protection": true,
+      "max_spatial_separation": 4.0,
+      "min_colocalization_overlap": 0.25,
+      "calibrated_color_model_path": "models/base_caller.joblib"
+    },
+    "manual_analysis": {
+      "nuclear_diameter": 55.0,
+      "radius_scale": 1.6,
+      "batch_size": 64,
+      "signal_probability_threshold": 0.7,
+      "base_model_path": "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/models/manual_parity/base_caller.joblib",
+      "blob_model_path": "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/models/manual_parity/blob_classifier.joblib",
+      "detector_params": {}
+    },
+    "decoding": {
+      "barcode_column": "barcode_new",
+      "codebook_path": "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/scratch/v4.3_library_barcodes.csv",
+      "min_score_margin": 0.8,
+      "min_confidence": 0.6,
+      "allow_recombination": false,
+      "max_hamming_distance": 2,
+      "match_reverse_complement": true
+    },
+    "output": {
+      "output_dir": "popcrop_output",
+      "save_probability_maps": true,
+      "save_masks": true,
+      "save_diagnostics": true,
+      "diagnostic_max_cells": 12,
+      "export_format": "parquet"
+    }
+  },
+  "image_metadata": {
+    "source_path": "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/wellb2_002_002_RGB.tif",
+    "raw_shape": [
+      13,
+      5340,
+      5998,
+      3
+    ],
+    "raw_dtype": "uint16",
+    "n_pages": 13
+  },
+  "model_and_codebook_sha256": {
+    "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/scratch/v4.3_library_barcodes.csv": "aaa26cb02365f1a7ffb3bbc8e755fb3a44cbed0c19d61063f69450ae21a2ad17",
+    "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/models/manual_parity/base_caller.joblib": "8260b3a7e36f678ae4b31826647c1334485b1bb74a2da34921c650dde3d02481",
+    "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/models/manual_parity/blob_classifier.joblib": "49516d3caa293e4266dd8c685b68b3a8c8a3fcb41a5a23cd5234ae7614d53e75"
+  },
+  "python_version": "3.12.14",
+  "definitions": {
+    "has_detectable_spot": "At least one cycle has a per-channel detector mask",
+    "has_signal": "At least one cycle has P(A)+P(C)+P(T) at or above the configured threshold",
+    "p_real_blob": "Compatibility column: maximum per-cycle base-model signal score; not a calibrated nucleus probability",
+    "posterior_confidence": "Likelihood support normalized across the entire supplied library; not empirical assignment accuracy",
+    "best_barcode": "Likelihood candidate, including rejected candidates; use assigned_barcode/status for accepted assignments",
+    "no_signal": "No classified detectable signal; does not establish lack of transduction",
+    "blob_mask": "Diagnostic union of raw per-cycle spot masks; overlapping cells use first owner. Probability map is the maximum across overlapping owners. Exact cycle masks are in cycles.parquet"
+  },
+  "runtime_seconds": 169.46,
+  "peak_rss_mib": 4619.7
+}

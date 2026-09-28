@@ -1,0 +1,8 @@
+{
+  "test_suite": "128 passed, 3 optional-fixture skips",
+  "source_and_model_hashes": "match original run/training provenance",
+  "manual_read_validation": "previous metrics reproduced",
+  "fresh_centroid_validation": "all metrics exactly match original JSON; 5376 nuclei",
+  "ui_image_lookup": "standalone canonical TIFF",
+  "model_provenance_guard": "passed"
+}

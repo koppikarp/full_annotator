@@ -1,0 +1,275 @@
+{
+  "purpose": "Preserve reproducibility inputs and unique source history while removing redundant workspace artifacts.",
+  "moved": [
+    {
+      "from": "annotation_app_2.1/wellb2_002_002_RGB.tif",
+      "to": "wellb2_002_002_RGB.tif",
+      "replaced_symlink": true
+    },
+    {
+      "from": "annotated_blob_ground_truth.csv.bak",
+      "to": "data/annotation_history/annotated_blob_ground_truth_before_backfill.csv"
+    },
+    {
+      "from": "scratch/v4.3_library_barcodes.csv",
+      "to": "data/library/v4.3_library_barcodes.csv"
+    },
+    {
+      "from": "scratch/Oligo for UMI_K_10nt.dna",
+      "to": "data/library/designs/Oligo for UMI_K_10nt.dna"
+    },
+    {
+      "from": "scratch/Popcell_v3.0 Oligo pool with mNG11.dna",
+      "to": "data/library/designs/Popcell_v3.0 Oligo pool with mNG11.dna"
+    },
+    {
+      "from": "scratch/Popcell_v3.1 GoldenGate mNG11.dna",
+      "to": "data/library/designs/Popcell_v3.1 GoldenGate mNG11.dna"
+    },
+    {
+      "from": "scratch/Popcell_v3.2 Scaffold.dna",
+      "to": "data/library/designs/Popcell_v3.2 Scaffold.dna"
+    },
+    {
+      "from": "scratch/Popcell_v4.0.dna",
+      "to": "data/library/designs/Popcell_v4.0.dna"
+    },
+    {
+      "from": "scratch/Popcell_v4.0_new.dna",
+      "to": "data/library/designs/Popcell_v4.0_new.dna"
+    },
+    {
+      "from": "scratch/Popcrop4.3_Amplicon mock map.dna",
+      "to": "data/library/designs/Popcrop4.3_Amplicon mock map.dna"
+    },
+    {
+      "from": "scratch/v4.3_internal_mNG2_remodel.csv",
+      "to": "data/library/designs/v4.3_internal_mNG2_remodel.csv"
+    },
+    {
+      "from": "popcrop_output/wellb2_002_002/Plate1_B2_14_masks.npz",
+      "to": "reports/legacy_reference/Plate1_B2_14_masks.npz"
+    },
+    {
+      "from": "popcrop_output/wellb2_002_002/Plate1_B2_14_components.parquet",
+      "to": "reports/legacy_reference/Plate1_B2_14_components.parquet"
+    },
+    {
+      "from": "popcrop_output/wellb2_002_002/Plate1_B2_14_nuclei.parquet",
+      "to": "reports/legacy_reference/Plate1_B2_14_nuclei.parquet"
+    },
+    {
+      "from": "popcrop_output/wellb2_002_002_manual_parity/run_summary.json",
+      "to": "reports/reference_run/run_summary.json"
+    },
+    {
+      "from": "popcrop_output/wellb2_002_002_manual_parity/run_summary_report.md",
+      "to": "reports/reference_run/run_summary_report.md"
+    },
+    {
+      "from": "popcrop_output/wellb2_002_002_manual_parity/Plate1_B2_14_nuclei.parquet",
+      "to": "reports/reference_run/Plate1_B2_14_nuclei.parquet"
+    },
+    {
+      "from": "../implementation_plan_popcrop_sept28.md",
+      "to": "reports/original_proposal_2026-09-28.md"
+    }
+  ],
+  "extracted": [
+    {
+      "archive": "annotation_app_2.1.zip",
+      "member": "annotation_app_2.1/annotated_base_ground_truth.csv",
+      "to": "data/annotation_history/annotation_app_2.1_zip/annotated_base_ground_truth.csv",
+      "sha256": "5c4d82e7fabe7afbb85d187e8d50d449063e3dc01038a2b9f2c93b6030ab5b27"
+    },
+    {
+      "archive": "annotation_app_2.1.zip",
+      "member": "annotation_app_2.1/annotated_blob_ground_truth.csv",
+      "to": "data/annotation_history/annotation_app_2.1_zip/annotated_blob_ground_truth.csv",
+      "sha256": "fb810ca7b4d30da8cd7c3d8f49f3973bbd53bd9e92300dec4dcc46e3bdbda6dc"
+    }
+  ],
+  "removed": [
+    {
+      "path": "annotation_app_2.1",
+      "bytes": 7106192,
+      "files": 125
+    },
+    {
+      "path": "annotation_app_2.1.zip",
+      "bytes": 1775840032,
+      "files": 1
+    },
+    {
+      "path": "popcrop/annotation/uploads/wellb2_002_002_RGB.tif",
+      "bytes": 2499120068,
+      "files": 1
+    },
+    {
+      "path": "scratch",
+      "bytes": 554813,
+      "files": 8
+    },
+    {
+      "path": "popcrop_output",
+      "bytes": 294201643,
+      "files": 13
+    },
+    {
+      "path": "models/base_caller.joblib",
+      "bytes": 2519671,
+      "files": 1
+    },
+    {
+      "path": "models/base_caller_metadata.json",
+      "bytes": 2562,
+      "files": 1
+    },
+    {
+      "path": "models/blob_classifier.joblib",
+      "bytes": 449242,
+      "files": 1
+    },
+    {
+      "path": "models/blob_classifier_metadata.json",
+      "bytes": 1986,
+      "files": 1
+    },
+    {
+      "path": "scripts/backfill_blob_ground_truth.py",
+      "bytes": 2582,
+      "files": 1
+    },
+    {
+      "path": "scripts/backfill_spatial_features.py",
+      "bytes": 5631,
+      "files": 1
+    },
+    {
+      "path": "scripts/train_base_model.py",
+      "bytes": 4293,
+      "files": 1
+    },
+    {
+      "path": "scripts/train_blob_model.py",
+      "bytes": 4333,
+      "files": 1
+    },
+    {
+      "path": "reports/production_run.log",
+      "bytes": 13694,
+      "files": 1
+    },
+    {
+      "path": "data/annotation_history/annotated_blob_ground_truth_before_backfill.csv",
+      "bytes": 68518,
+      "files": 1,
+      "reason": "Exact 324-row/34-column subset of preserved archived blob CSV; verified with pandas frame equality"
+    },
+    {
+      "path": ".venv",
+      "bytes": 433189039,
+      "files": 10600,
+      "reason": "Machine-specific macOS environment; recreate using requirements-analysis.lock"
+    },
+    {
+      "path": "popcrop/visualization/__pycache__",
+      "bytes": 7938,
+      "files": 2,
+      "reason": "Generated Python bytecode cache"
+    },
+    {
+      "path": "popcrop/color_calling/__pycache__",
+      "bytes": 29038,
+      "files": 3,
+      "reason": "Generated Python bytecode cache"
+    },
+    {
+      "path": "popcrop/calibration/__pycache__",
+      "bytes": 19510,
+      "files": 3,
+      "reason": "Generated Python bytecode cache"
+    },
+    {
+      "path": "popcrop/blob_detection/__pycache__",
+      "bytes": 9061,
+      "files": 4,
+      "reason": "Generated Python bytecode cache"
+    },
+    {
+      "path": "popcrop/io/__pycache__",
+      "bytes": 44527,
+      "files": 8,
+      "reason": "Generated Python bytecode cache"
+    },
+    {
+      "path": "popcrop/annotation/__pycache__",
+      "bytes": 118288,
+      "files": 4,
+      "reason": "Generated Python bytecode cache"
+    },
+    {
+      "path": "popcrop/blob_classifier/__pycache__",
+      "bytes": 22382,
+      "files": 3,
+      "reason": "Generated Python bytecode cache"
+    },
+    {
+      "path": "popcrop/models/__pycache__",
+      "bytes": 28007,
+      "files": 3,
+      "reason": "Generated Python bytecode cache"
+    },
+    {
+      "path": "popcrop/decoding/__pycache__",
+      "bytes": 13961,
+      "files": 2,
+      "reason": "Generated Python bytecode cache"
+    },
+    {
+      "path": "popcrop/preprocessing/__pycache__",
+      "bytes": 22104,
+      "files": 6,
+      "reason": "Generated Python bytecode cache"
+    },
+    {
+      "path": "tests/__pycache__",
+      "bytes": 655857,
+      "files": 30,
+      "reason": "Generated Python bytecode cache"
+    },
+    {
+      "path": "popcrop/__pycache__",
+      "bytes": 71453,
+      "files": 6,
+      "reason": "Generated Python bytecode cache"
+    },
+    {
+      "path": "scripts/__pycache__",
+      "bytes": 32274,
+      "files": 3,
+      "reason": "Generated Python bytecode cache"
+    },
+    {
+      "path": ".pytest_cache",
+      "bytes": 15020,
+      "files": 6,
+      "reason": "Generated pytest cache"
+    },
+    {
+      "path": ".DS_Store",
+      "bytes": 10244,
+      "files": 1,
+      "reason": "macOS Finder metadata"
+    },
+    {
+      "path": "../.DS_Store",
+      "bytes": 8196,
+      "files": 1,
+      "reason": "macOS Finder metadata"
+    }
+  ],
+  "source_image_sha256": "cd337ef34681e8d60832fbb7bec5b98b69c31b2ebdb44fc76671f5f9fb962601",
+  "removed_total_bytes": 5014192159,
+  "validation": "reports/cleanup_validation.json"
+}

@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POPCROP Base Caller & Signal Validator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body data-mode="{{ initial_mode }}">
+    <div class="app-container">
+        
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-top">
+                <div class="brand">
+                    <h1>POPCROP OPS Annotator</h1>
+                    <span class="sub-brand">Spot Segmentation & Featurization Suite</span>
+                </div>
+
+                <!-- WORKFLOW MODE SWITCHER -->
+                <div class="workflow-tabs">
+                    <button id="tab-base-caller" class="workflow-tab active" title="Annotate DNA Base Calls within Segmented Blobs">
+                        <span class="tab-icon">🧬</span> Base Caller
+                    </button>
+                    <button id="tab-blob-validator" class="workflow-tab" title="Validate whether Segmented Blobs are Real Signal vs Noise">
+                        <span class="tab-icon">🔬</span> Blob Signal Validator
+                    </button>
+                </div>
+
+                <!-- OPTIONAL FISH PROBE (CYCLE 0) TOGGLE -->
+                <button id="fish-probe-toggle-btn" class="pill-btn fish-toggle" title="Toggle Cycle 0 Pre-Sequencing FISH Probe Viewer">
+                    <span class="fish-icon">👁️</span>
+                    <span class="fish-text">FISH Probe (Cycle 0): <strong id="fish-status-text">OFF</strong></span>
+                </button>
+
+                <!-- DRAG AND DROP UPLOAD ZONE -->
+                <label class="drop-zone" id="drop-zone" for="file-input">
+                    <span class="drop-icon">📁</span>
+                    <span class="drop-text">Upload TIFF / TSV</span>
+                    <input type="file" id="file-input" class="file-input" accept=".tiff,.tif,.csv,.tsv">
+                </label>
+
+                <!-- START BUTTON -->
+                <button id="start-btn" class="btn btn-primary btn-glow">
+                    <span class="btn-icon">▶</span> START
+                </button>
+            </div>
+
+            <!-- FILE STATUS & CONFIG METRICS BAR -->
+            <div class="file-status-bar">
+                <div class="status-row status-row-top">
+                    <div class="meta-badge file-badge">
+                        <span class="label">TIFF Image</span>
+                        <span class="value code-val" id="tiff-filename-badge">Loading...</span>
+                    </div>
+                    <div class="meta-badge file-badge">
+                        <span class="label">Active Output CSV</span>
+                        <span class="value code-val" id="output-csv-badge">annotated_base_ground_truth.csv</span>
+                    </div>
+                    <div class="meta-badge">
+                        <span class="label">Active Cycle</span>
+                        <select id="cycle-select" class="cycle-dropdown">
+                            <option value="1">Cycle 1</option>
+                        </select>
+                    </div>
+                    <div class="meta-badge">
+                        <span class="label">Nuclear Diameter (px)</span>
+                        <input type="number" id="nuclear-dia-input" class="dia-input" value="55" step="2" min="10" max="300">
+                    </div>
+                    <div class="meta-badge">
+                        <span class="label">Spot Hysteresis Threshold</span>
+                        <div class="thresh-control">
+                            <input type="range" id="hysteresis-high-slider" min="1.0" max="25.0" step="0.5" value="4.0" class="thresh-slider">
+                            <span id="hysteresis-val-badge" class="code-val-sm">4.0 σ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT BODY -->
+        <div class="app-body">
+            
+            <!-- MAIN CONTENT COLUMN -->
+            <main class="main-content">
+                
+                <!-- PROGRESS BAR -->
+                <section class="progress-section">
+                    <div class="progress-info">
+                        <div class="progress-left-group">
+                            <span id="progress-text">Cycle 1 Nuclei Annotated: 0 / 0</span>
+                            <span id="session-count-badge" class="session-badge">Total Ground Truth: 0</span>
+                        </div>
+                        <span id="progress-percent">0%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
+                    </div>
+                </section>
+
+                <!-- SECTION 1: LOW MAG VIEW (FULL FOV) -->
+                <section class="view-section">
+                    <div class="view-section-header">
+                        <h2>Low Power (Full FOV)</h2>
+                        <div class="fov-header-controls">
+                            <label class="pill-checkbox" title="Toggle cell marker dots on low power FOV (Hotkey: D)">
+                                <input type="checkbox" id="toggle-fov-dots-cb" checked> Cell Dots
+                            </label>
+                            <span class="section-hint">Click any cell to inspect and call</span>
+                        </div>
+                    </div>
+                    <!-- Dynamically 3-panel or 4-panel grid depending on FISH probe toggle -->
+                    <div class="panel-grid-container grid-3col" id="fov-grid">
+                        <!-- GREEN FOV -->
+                        <div class="card panel-card green-panel">
+                            <div class="panel-header">
+                                <span class="panel-title"><span class="dot green-dot"></span> Green Channel</span>
+                                <button class="pill-toggle active" id="fov-green-mode-btn">Pseudocolor</button>
+                            </div>
+                            <div class="fov-canvas-wrapper">
+                                <div class="fov-loading-overlay" id="fov-green-loading-overlay" style="display: none;">
+                                    <div class="crop-spinner"></div>
+                                    <span class="crop-loading-text">Loading FOV...</span>
+                                </div>
+                                <canvas id="fov-green-canvas" width="600" height="600" class="fov-canvas"></canvas>
+                            </div>
+                            <div class="panel-footer">Green FOV</div>
+                        </div>
+
+                        <!-- RED FOV -->
+                        <div class="card panel-card red-panel">
+                            <div class="panel-header">
+                                <span class="panel-title"><span class="dot red-dot"></span> Red Channel</span>
+                                <button class="pill-toggle active" id="fov-red-mode-btn">Pseudocolor</button>
+                            </div>
+                            <div class="fov-canvas-wrapper">
+                                <div class="fov-loading-overlay" id="fov-red-loading-overlay" style="display: none;">
+                                    <div class="crop-spinner"></div>
+                                    <span class="crop-loading-text">Loading FOV...</span>
+                                </div>
+                                <canvas id="fov-red-canvas" width="600" height="600" class="fov-canvas"></canvas>
+                            </div>
+                            <div class="panel-footer">Red FOV</div>
+                        </div>
+
+                        <!-- OVERLAY FOV -->
+                        <div class="card panel-card composite-panel">
+                            <div class="panel-header">
+                                <span class="panel-title"><span class="dot split-dot"></span> Overlay (Green + Red + DAPI)</span>
+                                <label class="pill-checkbox">
+                                    <input type="checkbox" id="fov-overlay-blue-cb" checked> +Blue DAPI
+                                </label>
+                            </div>
+                            <div class="fov-canvas-wrapper">
+                                <div class="fov-loading-overlay" id="fov-overlay-loading-overlay" style="display: none;">
+                                    <div class="crop-spinner"></div>
+                                    <span class="crop-loading-text">Loading FOV...</span>
+                                </div>
+                                <canvas id="fov-overlay-canvas" width="600" height="600" class="fov-canvas"></canvas>
+                            </div>
+                            <div class="panel-footer">Merged FOV</div>
+                        </div>
+
+                        <!-- CYCLE 0 FISH PROBE FOV (OPTIONAL / TOGGLEABLE) -->
+                        <div class="card panel-card cycle0-panel" id="fov-cycle0-panel" style="display: none;">
+                            <div class="panel-header">
+                                <span class="panel-title"><span class="dot ref-dot"></span> Cycle 0 (FISH Probe)</span>
+                                <span class="panel-badge-sm">Anchor</span>
+                            </div>
+                            <div class="fov-canvas-wrapper">
+                                <div class="fov-loading-overlay" id="fov-cycle0-loading-overlay" style="display: none;">
+                                    <div class="crop-spinner"></div>
+                                    <span class="crop-loading-text">Loading FOV...</span>
+                                </div>
+                                <canvas id="fov-cycle0-canvas" width="600" height="600" class="fov-canvas"></canvas>
+                            </div>
+                            <div class="panel-footer">Pre-Sequencing 647 + DAPI</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 2: HIGH MAG VIEW (ZOOMED CELL) -->
+                <section class="view-section" style="margin-top: 18px;">
+                    <div class="view-section-header">
+                        <h2>High Power (Zoomed Cell & Spot Segmentation)</h2>
+                        <div class="crop-header-controls">
+                            <label class="pill-checkbox" title="Toggle Nuclear Boundary Contour">
+                                <input type="checkbox" id="toggle-nuc-contour-cb" checked> Nuclear Outline
+                            </label>
+                            <label class="pill-checkbox" title="Toggle Green Spot Contour">
+                                <input type="checkbox" id="toggle-green-contour-cb" checked> Green Spot
+                            </label>
+                            <label class="pill-checkbox" title="Toggle Red Spot Contour">
+                                <input type="checkbox" id="toggle-red-contour-cb" checked> Red Spot
+                            </label>
+                            <span class="active-cell-chip">Active Cell: <strong id="active-crop-cell-label">--</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Dynamically 3-panel or 4-panel grid depending on FISH probe toggle -->
+                    <div class="panel-grid-container grid-3col" id="crop-grid">
+                        <!-- GREEN ZOOM -->
+                        <div class="card panel-card green-panel">
+                            <div class="panel-header">
+                                <span class="panel-title"><span class="dot green-dot"></span> Green Crop</span>
+                                <button class="pill-toggle active" id="crop-green-mode-btn">Pseudocolor</button>
+                            </div>
+                            <div class="crop-image-wrapper" id="green-crop-wrapper">
+                                <div class="crop-loading-overlay" id="green-loading-overlay" style="display: none;">
+                                    <div class="crop-spinner"></div>
+                                    <span class="crop-loading-text">Loading...</span>
+                                </div>
+                                <canvas id="crop-green-canvas" width="280" height="280" class="crop-canvas"></canvas>
+                            </div>
+                            <div class="panel-footer">
+                                <span>Spot: <strong id="green-crop-status" class="spot-status-badge">--</strong></span>
+                                <span>Area: <strong id="green-crop-area">--</strong> px</span>
+                                <span>Med: <strong id="green-crop-med-val">--</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- RED ZOOM -->
+                        <div class="card panel-card red-panel">
+                            <div class="panel-header">
+                                <span class="panel-title"><span class="dot red-dot"></span> Red Crop</span>
+                                <button class="pill-toggle active" id="crop-red-mode-btn">Pseudocolor</button>
+                            </div>
+                            <div class="crop-image-wrapper" id="red-crop-wrapper">
+                                <div class="crop-loading-overlay" id="red-loading-overlay" style="display: none;">
+                                    <div class="crop-spinner"></div>
+                                    <span class="crop-loading-text">Loading...</span>
+                                </div>
+                                <canvas id="crop-red-canvas" width="280" height="280" class="crop-canvas"></canvas>
+                            </div>
+                            <div class="panel-footer">
+                                <span>Spot: <strong id="red-crop-status" class="spot-status-badge">--</strong></span>
+                                <span>Area: <strong id="red-crop-area">--</strong> px</span>
+                                <span>Med: <strong id="red-crop-med-val">--</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- OVERLAY ZOOM -->
+                        <div class="card panel-card composite-panel">
+                            <div class="panel-header">
+                                <span class="panel-title"><span class="dot split-dot"></span> Overlay Crop</span>
+                                <label class="pill-checkbox">
+                                    <input type="checkbox" id="crop-overlay-blue-cb" checked> +Blue DAPI
+                                </label>
+                            </div>
+                            <div class="crop-image-wrapper" id="composite-crop-wrapper">
+                                <div class="crop-loading-overlay" id="composite-loading-overlay" style="display: none;">
+                                    <div class="crop-spinner"></div>
+                                    <span class="crop-loading-text">Loading...</span>
+                                </div>
+                                <canvas id="crop-composite-canvas" width="280" height="280" class="crop-canvas"></canvas>
+                            </div>
+                            <div class="panel-footer">
+                                <span>Union Spot: <strong id="composite-crop-status" class="spot-status-badge">--</strong></span>
+                                <span>Area: <strong id="blob-area-val">--</strong> px</span>
+                            </div>
+                        </div>
+
+                        <!-- CYCLE 0 FISH ZOOM (OPTIONAL / TOGGLEABLE) -->
+                        <div class="card panel-card cycle0-panel" id="crop-cycle0-panel" style="display: none;">
+                            <div class="panel-header">
+                                <span class="panel-title"><span class="dot ref-dot"></span> Cycle 0 (FISH Probe)</span>
+                            </div>
+                            <div class="crop-image-wrapper" id="cycle0-crop-wrapper">
+                                <div class="crop-loading-overlay" id="cycle0-loading-overlay" style="display: none;">
+                                    <div class="crop-spinner"></div>
+                                    <span class="crop-loading-text">Loading...</span>
+                                </div>
+                                <canvas id="crop-cycle0-canvas" width="280" height="280" class="crop-canvas"></canvas>
+                            </div>
+                            <div class="panel-footer">FISH Anchor Probe</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ACTIVE NUCLEUS BAR (Shared across Base Calling and Blob Validation) -->
+                <section class="active-nucleus-bar card" style="margin-top: 16px;">
+                    <div class="active-nucleus-main-row">
+                        <div class="nucleus-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Active Nucleus</span>
+                                <span class="meta-val" id="active-cell-id">Cell #--</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Position</span>
+                                <span class="meta-val code-val" id="active-coords">X: --, Y: --</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Current Call</span>
+                                <span class="meta-val base-badge" id="active-base-badge">UNANNOTATED</span>
+                            </div>
+                        </div>
+
+                        <div class="nav-controls">
+                            <div class="progression-toggle-container">
+                                <span class="prog-label">Advance:</span>
+                                <div class="segmented-control" id="nav-progression-control">
+                                    <button type="button" class="segmented-btn active" data-prog="cell" title="Advance to next cell across current cycle">Cell → Cell</button>
+                                    <button type="button" class="segmented-btn" data-prog="cycle" title="Advance to next cycle for this cell">Cycle → Cycle</button>
+                                </div>
+                                <kbd title="Press 'P' to toggle progression mode">P</kbd>
+                            </div>
+                            <button id="prev-btn" class="btn btn-secondary">◀ Prev</button>
+                            <button id="next-btn" class="btn btn-secondary">Next ▶</button>
+                            <button id="skip-btn" class="btn btn-tertiary">Skip</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 3: WORKFLOW SPECIFIC ACTION BAR & METRIC PANELS -->
+                
+                <!-- WORKFLOW A: BASE CALLER PANEL -->
+                <div id="base-caller-workflow-section" class="workflow-section active">
+                    
+                    <!-- BASE CALL BUTTONS (A, T, C, G, N) -->
+                    <section class="card base-action-card" style="margin-top: 14px;">
+                        <div class="action-card-header">
+                            <div class="action-card-title-group">
+                                <h3>Select Base Call for Segmented Spot</h3>
+                                <p id="base-advance-help-text">Press keyboard key (<kbd>A</kbd>, <kbd>T</kbd>, <kbd>C</kbd>, <kbd>G</kbd>, <kbd>N</kbd>) to annotate and advance to next cell</p>
+                            </div>
+                            <div class="progression-toggle-container">
+                                <span class="prog-label">Advance:</span>
+                                <div class="segmented-control" id="base-progression-control">
+                                    <button type="button" class="segmented-btn active" data-prog="cell" title="Advance to next cell across current cycle">Cell → Cell</button>
+                                    <button type="button" class="segmented-btn" data-prog="cycle" title="Advance to next cycle for this cell">Cycle → Cycle</button>
+                                </div>
+                                <kbd title="Press 'P' to toggle progression mode">P</kbd>
+                            </div>
+                        </div>
+                        <div class="base-buttons-grid">
+                            <button class="base-btn base-a" data-base="A">
+                                <span class="base-letter">A</span>
+                                <span class="base-desc">Green Only</span>
+                                <kbd>Key A</kbd>
+                            </button>
+                            <button class="base-btn base-t" data-base="T">
+                                <span class="base-letter">T</span>
+                                <span class="base-desc">Red Only</span>
+                                <kbd>Key T</kbd>
+                            </button>
+                            <button class="base-btn base-c" data-base="C">
+                                <span class="base-letter">C</span>
+                                <span class="base-desc">Both (Yellow)</span>
+                                <kbd>Key C</kbd>
+                            </button>
+                            <button class="base-btn base-g" data-base="G">
+                                <span class="base-letter">G</span>
+                                <span class="base-desc">Neither (Dark)</span>
+                                <kbd>Key G</kbd>
+                            </button>
+                            <button class="base-btn base-n" data-base="N">
+                                <span class="base-letter">N</span>
+                                <span class="base-desc">Not a Blob / Unknown</span>
+                                <kbd>Key N</kbd>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- INTENSITY DISTRIBUTION CARDS (TIER 1, TRIMMED MEAN & TIER 2) -->
+                    <section class="distribution-cards-section" style="margin-top: 16px;">
+                        <div class="distribution-grid">
+                            
+                            <!-- GREEN DISTRIBUTION CARD -->
+                            <div class="card dist-channel-card green-dist-card">
+                                <div class="dist-card-header">
+                                    <div class="dist-title-group">
+                                        <span class="dot green-dot"></span>
+                                        <strong>Green Channel (Blob Distribution)</strong>
+                                    </div>
+                                    <div class="dist-header-metrics">
+                                        <span>Median: <strong id="g-dist-median">--</strong></span>
+                                        <span class="badge-accent">Trimmed Mean (P50-P90): <strong id="g-dist-trimmed">--</strong></span>
+                                    </div>
+                                </div>
+                                <div class="dist-metrics-row">
+                                    <div class="metric-box">
+                                        <span class="m-label">IQR [Q25 – Q75]</span>
+                                        <span class="m-val" id="g-dist-iqr">-- – --</span>
+                                    </div>
+                                    <div class="metric-box">
+                                        <span class="m-label">Upper Core (P90)</span>
+                                        <span class="m-val" id="g-dist-p90">--</span>
+                                    </div>
+                                    <div class="metric-box">
+                                        <span class="m-label">Peak (Max)</span>
+                                        <span class="m-val" id="g-dist-max">--</span>
+                                    </div>
+                                    <div class="metric-box">
+                                        <span class="m-label">Nuclear Delta</span>
+                                        <span class="m-val highlight-green" id="g-dist-delta">--</span>
+                                    </div>
+                                </div>
+                                <!-- MINI RANGE BAR / BOX PLOT -->
+                                <div class="range-bar-container">
+                                    <div class="range-bar-track">
+                                        <div class="range-bar-iqr green-iqr-box" id="g-range-iqr"></div>
+                                        <div class="range-bar-pin green-pin" id="g-range-pin"></div>
+                                        <div class="range-bar-whisker green-whisker" id="g-range-whisker"></div>
+                                    </div>
+                                    <div class="range-bar-labels">
+                                        <span>0</span>
+                                        <span id="g-range-p25-lbl">Q25</span>
+                                        <span id="g-range-med-lbl">Median</span>
+                                        <span id="g-range-p75-lbl">Q75</span>
+                                        <span id="g-range-p95-lbl">P95</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RED DISTRIBUTION CARD -->
+                            <div class="card dist-channel-card red-dist-card">
+                                <div class="dist-card-header">
+                                    <div class="dist-title-group">
+                                        <span class="dot red-dot"></span>
+                                        <strong>Red Channel (Blob Distribution)</strong>
+                                    </div>
+                                    <div class="dist-header-metrics">
+                                        <span>Median: <strong id="r-dist-median">--</strong></span>
+                                        <span class="badge-accent">Trimmed Mean (P50-P90): <strong id="r-dist-trimmed">--</strong></span>
+                                    </div>
+                                </div>
+                                <div class="dist-metrics-row">
+                                    <div class="metric-box">
+                                        <span class="m-label">IQR [Q25 – Q75]</span>
+                                        <span class="m-val" id="r-dist-iqr">-- – --</span>
+                                    </div>
+                                    <div class="metric-box">
+                                        <span class="m-label">Upper Core (P90)</span>
+                                        <span class="m-val" id="r-dist-p90">--</span>
+                                    </div>
+                                    <div class="metric-box">
+                                        <span class="m-label">Peak (Max)</span>
+                                        <span class="m-val" id="r-dist-max">--</span>
+                                    </div>
+                                    <div class="metric-box">
+                                        <span class="m-label">Nuclear Delta</span>
+                                        <span class="m-val highlight-red" id="r-dist-delta">--</span>
+                                    </div>
+                                </div>
+                                <!-- MINI RANGE BAR / BOX PLOT -->
+                                <div class="range-bar-container">
+                                    <div class="range-bar-track">
+                                        <div class="range-bar-iqr red-iqr-box" id="r-range-iqr"></div>
+                                        <div class="range-bar-pin red-pin" id="r-range-pin"></div>
+                                        <div class="range-bar-whisker red-whisker" id="r-range-whisker"></div>
+                                    </div>
+                                    <div class="range-bar-labels">
+                                        <span>0</span>
+                                        <span id="r-range-p25-lbl">Q25</span>
+                                        <span id="r-range-med-lbl">Median</span>
+                                        <span id="r-range-p75-lbl">Q75</span>
+                                        <span id="r-range-p95-lbl">P95</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+                </div>
+
+                <!-- WORKFLOW B: BLOB SIGNAL VALIDATOR PANEL -->
+                <div id="blob-validator-workflow-section" class="workflow-section" style="display: none;">
+                    
+                    <!-- VALIDATION ACTION BAR -->
+                    <section class="card validator-action-card" style="margin-top: 16px;">
+                        <div class="action-card-header">
+                            <div class="action-card-title-group">
+                                <h3>Blob Detection Validation: Channel Accuracy</h3>
+                                <p id="blob-advance-help-text">Verify channel accuracy: (<kbd>B</kbd>/<kbd>1</kbd> Both, <kbd>G</kbd>/<kbd>2</kbd> Only Green, <kbd>R</kbd>/<kbd>3</kbd> Only Red, <kbd>N</kbd>/<kbd>0</kbd> Neither) to advance to next cell</p>
+                            </div>
+                            <div class="progression-toggle-container">
+                                <span class="prog-label">Advance:</span>
+                                <div class="segmented-control" id="blob-progression-control">
+                                    <button type="button" class="segmented-btn active" data-prog="cell" title="Advance to next cell across current cycle">Cell → Cell</button>
+                                    <button type="button" class="segmented-btn" data-prog="cycle" title="Advance to next cycle for this cell">Cycle → Cycle</button>
+                                </div>
+                                <kbd title="Press 'P' to toggle progression mode">P</kbd>
+                            </div>
+                        </div>
+                        <div class="validator-buttons-grid">
+                            <button id="btn-call-both" class="validator-btn btn-call-both" data-call="both">
+                                <span class="btn-symbol">✅</span>
+                                <span class="btn-headline">Both Called Correctly</span>
+                                <span class="btn-subtext">Both channels accurate</span>
+                                <kbd>Key B / 1</kbd>
+                            </button>
+                            <button id="btn-call-only-green" class="validator-btn btn-call-green" data-call="only_green">
+                                <span class="btn-symbol">🟢</span>
+                                <span class="btn-headline">Only Green Called Correctly</span>
+                                <span class="btn-subtext">Green accurate, Red false/miss</span>
+                                <kbd>Key G / 2</kbd>
+                            </button>
+                            <button id="btn-call-only-red" class="validator-btn btn-call-red" data-call="only_red">
+                                <span class="btn-symbol">🔴</span>
+                                <span class="btn-headline">Only Red Called Correctly</span>
+                                <span class="btn-subtext">Red accurate, Green false/miss</span>
+                                <kbd>Key R / 3</kbd>
+                            </button>
+                            <button id="btn-call-neither" class="validator-btn btn-call-neither" data-call="neither">
+                                <span class="btn-symbol">❌</span>
+                                <span class="btn-headline">Neither Called Correctly</span>
+                                <span class="btn-subtext">Both channels inaccurate / noise</span>
+                                <kbd>Key N / 0</kbd>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- OBJECT LEVEL FEATURE INSPECTOR -->
+                    <section class="card feature-inspector-card" style="margin-top: 14px;">
+                        <div class="card-header">
+                            <h3>Segmented Blob Object Features</h3>
+                            <div class="prob-badge-container">
+                                <span>Model Score:</span>
+                                <span id="val-prob-badge" class="prob-badge">P(real) = --</span>
+                            </div>
+                        </div>
+                        <div class="features-table-grid">
+                            <div class="feat-item">
+                                <span class="f-label">Area (pixels)</span>
+                                <span class="f-val" id="feat-area">--</span>
+                            </div>
+                            <div class="feat-item">
+                                <span class="f-label">Fraction of Nucleus</span>
+                                <span class="f-val" id="feat-frac-nuc">--</span>
+                            </div>
+                            <div class="feat-item">
+                                <span class="f-label">Median Contrast (SNR)</span>
+                                <span class="f-val" id="feat-med-contrast">--</span>
+                            </div>
+                            <div class="feat-item">
+                                <span class="f-label">Peak Contrast (SNR)</span>
+                                <span class="f-val" id="feat-peak-contrast">--</span>
+                            </div>
+                            <div class="feat-item">
+                                <span class="f-label">Spatial Smoothness</span>
+                                <span class="f-val" id="feat-smoothness">--</span>
+                            </div>
+                            <div class="feat-item">
+                                <span class="f-label">Solidity</span>
+                                <span class="f-val" id="feat-solidity">--</span>
+                            </div>
+                            <div class="feat-item">
+                                <span class="f-label">Eccentricity</span>
+                                <span class="f-val" id="feat-eccentricity">--</span>
+                            </div>
+                            <div class="feat-item">
+                                <span class="f-label">Perimeter/Area</span>
+                                <span class="f-val" id="feat-perimeter-area">--</span>
+                            </div>
+                            <div class="feat-item">
+                                <span class="f-label">Distance to Boundary</span>
+                                <span class="f-val" id="feat-dist-boundary">-- px</span>
+                            </div>
+                            <div class="feat-item">
+                                <span class="f-label">Saturated Fraction</span>
+                                <span class="f-val" id="feat-sat-frac">--</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- SECTION 4: GROUND TRUTH LOG TABLE -->
+                <section class="card table-card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h3 id="table-title">Annotated Base Ground Truth (<span id="gt-count">0</span> records)</h3>
+                        <div class="table-actions">
+                            <button id="refresh-gt-btn" class="btn btn-sm btn-secondary">Refresh</button>
+                            <button id="clear-gt-btn" class="btn btn-sm btn-danger">Clear Current Table</button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper" id="gt-table-wrapper">
+                        <!-- Table rendered via JavaScript based on active workflow -->
+                        <table class="gt-table" id="gt-table">
+                            <thead id="gt-table-head"></thead>
+                            <tbody id="gt-table-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </main>
+
+            <!-- RIGHT HAND COLLAPSIBLE LUT DRAWER -->
+            <aside id="lut-sidebar" class="lut-sidebar open">
+                <button id="lut-sidebar-handle" class="lut-sidebar-handle" title="Collapse LUT Sidebar">
+                    <span class="tab-arrow">▶</span>
+                    <span class="handle-text">LUT</span>
+                </button>
+
+                <div class="sidebar-inner">
+                    <div class="sidebar-header">
+                        <h3>LUT & Intensity Scaling</h3>
+                        <span class="sidebar-subtitle">Cycle-specific scaling</span>
+                    </div>
+
+                    <button id="save-luts-btn" class="btn btn-primary btn-save-lut">
+                        <span>💾</span> SAVE CYCLE <span id="save-cycle-lbl">1</span> LUT
+                    </button>
+
+                    <div class="lut-channels-list">
+                        
+                        <!-- GREEN CHANNEL LUT -->
+                        <div class="lut-card green-lut-card">
+                            <div class="lut-card-header">
+                                <span class="lut-title green-text"><span class="dot green-dot"></span> Green Channel</span>
+                            </div>
+                            <div class="pixel-input-group">
+                                <div class="pixel-field">
+                                    <label>Min</label>
+                                    <input type="number" id="green-min-input" value="0">
+                                </div>
+                                <div class="pixel-field">
+                                    <label>Max</label>
+                                    <input type="number" id="green-max-input" value="65535">
+                                </div>
+                            </div>
+                            <div class="dual-range-container">
+                                <input type="range" id="green-min-slider" min="0" max="65535" value="0" class="lut-range">
+                                <input type="range" id="green-max-slider" min="0" max="65535" value="65535" class="lut-range">
+                            </div>
+                            <div class="lut-select-row">
+                                <label for="green-lut-select">Colormap:</label>
+                                <select id="green-lut-select" class="lut-dropdown">
+                                    <option value="green" selected>Green (Default)</option>
+                                    <option value="viridis">Viridis</option>
+                                    <option value="plasma">Plasma</option>
+                                    <option value="fire">Fire / Hot</option>
+                                    <option value="gray">Grayscale</option>
+                                    <option value="cyan">Cyan</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- RED CHANNEL LUT -->
+                        <div class="lut-card red-lut-card">
+                            <div class="lut-card-header">
+                                <span class="lut-title red-text"><span class="dot red-dot"></span> Red Channel</span>
+                            </div>
+                            <div class="pixel-input-group">
+                                <div class="pixel-field">
+                                    <label>Min</label>
+                                    <input type="number" id="red-min-input" value="0">
+                                </div>
+                                <div class="pixel-field">
+                                    <label>Max</label>
+                                    <input type="number" id="red-max-input" value="65535">
+                                </div>
+                            </div>
+                            <div class="dual-range-container">
+                                <input type="range" id="red-min-slider" min="0" max="65535" value="0" class="lut-range">
+                                <input type="range" id="red-max-slider" min="0" max="65535" value="65535" class="lut-range">
+                            </div>
+                            <div class="lut-select-row">
+                                <label for="red-lut-select">Colormap:</label>
+                                <select id="red-lut-select" class="lut-dropdown">
+                                    <option value="red" selected>Red (Default)</option>
+                                    <option value="viridis">Viridis</option>
+                                    <option value="plasma">Plasma</option>
+                                    <option value="fire">Fire / Hot</option>
+                                    <option value="gray">Grayscale</option>
+                                    <option value="magenta">Magenta</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- DAPI BLUE LUT -->
+                        <div class="lut-card dapi-lut-card">
+                            <div class="lut-card-header">
+                                <span class="lut-title dapi-text"><span class="dot dapi-dot"></span> Blue (DAPI)</span>
+                            </div>
+                            <div class="pixel-input-group">
+                                <div class="pixel-field">
+                                    <label>Min</label>
+                                    <input type="number" id="dapi-min-input" value="0">
+                                </div>
+                                <div class="pixel-field">
+                                    <label>Max</label>
+                                    <input type="number" id="dapi-max-input" value="65535">
+                                </div>
+                            </div>
+                            <div class="dual-range-container">
+                                <input type="range" id="dapi-min-slider" min="0" max="65535" value="0" class="lut-range">
+                                <input type="range" id="dapi-max-slider" min="0" max="65535" value="65535" class="lut-range">
+                            </div>
+                            <div class="lut-select-row">
+                                <label for="dapi-lut-select">Colormap:</label>
+                                <select id="dapi-lut-select" class="lut-dropdown">
+                                    <option value="dapi" selected>Blue (Default)</option>
+                                    <option value="cyan">Cyan</option>
+                                    <option value="gray">Grayscale</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- CYCLE 0 FAR-RED & DAPI LUT -->
+                        <div class="lut-card cycle0-lut-card" id="c0-lut-card" style="display: none;">
+                            <div class="lut-card-header">
+                                <span class="lut-title magenta-text"><span class="dot ref-dot"></span> Cycle 0 (Far-red 647)</span>
+                            </div>
+                            <div class="pixel-input-group">
+                                <div class="pixel-field">
+                                    <label>Min</label>
+                                    <input type="number" id="c0-farred-min-input" value="0">
+                                </div>
+                                <div class="pixel-field">
+                                    <label>Max</label>
+                                    <input type="number" id="c0-farred-max-input" value="65535">
+                                </div>
+                            </div>
+                            <div class="dual-range-container">
+                                <input type="range" id="c0-farred-min-slider" min="0" max="65535" value="0" class="lut-range">
+                                <input type="range" id="c0-farred-max-slider" min="0" max="65535" value="65535" class="lut-range">
+                            </div>
+
+                            <div class="lut-card-header" style="margin-top: 10px;">
+                                <span class="lut-title dapi-text"><span class="dot dapi-dot"></span> Cycle 0 (DAPI)</span>
+                            </div>
+                            <div class="pixel-input-group">
+                                <div class="pixel-field">
+                                    <label>Min</label>
+                                    <input type="number" id="c0-dapi-min-input" value="0">
+                                </div>
+                                <div class="pixel-field">
+                                    <label>Max</label>
+                                    <input type="number" id="c0-dapi-max-input" value="65535">
+                                </div>
+                            </div>
+                            <div class="dual-range-container">
+                                <input type="range" id="c0-dapi-min-slider" min="0" max="65535" value="0" class="lut-range">
+                                <input type="range" id="c0-dapi-max-slider" min="0" max="65535" value="65535" class="lut-range">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+    </div>
+
+    <!-- FULLSCREEN DATASET PROCESSING & UPLOAD MODAL -->
+    <div id="dataset-loading-overlay" class="dataset-loading-overlay" style="display: none;">
+        <div class="dataset-loading-card">
+            <div class="loading-card-top">
+                <div class="loading-icon-badge">
+                    <div class="dataset-spinner"></div>
+                </div>
+                <div class="loading-titles">
+                    <h2 id="loading-card-title">Processing Image Stack</h2>
+                    <p id="loading-card-subtitle" class="loading-subtitle">wellb2_002_002_RGB.tif (2.33 GB)</p>
+                </div>
+            </div>
+
+            <!-- OVERALL PROGRESS BAR -->
+            <div class="loading-progress-box">
+                <div class="loading-bar-track">
+                    <div id="loading-bar-fill" class="loading-bar-fill" style="width: 0%;"></div>
+                </div>
+                <div class="loading-stats-row">
+                    <span id="loading-stage-label" class="loading-stage-label">Preparing pipeline...</span>
+                    <span id="loading-percent-label" class="loading-percent-label">0%</span>
+                </div>
+            </div>
+
+            <!-- STEPWISE PIPELINE LIST -->
+            <div class="pipeline-steps" id="pipeline-steps-container">
+                <!-- Dynamically populated in script.js -->
+            </div>
+
+            <!-- FOOTER NOTICE -->
+            <div class="loading-card-footer">
+                <span class="tip-icon">⚡</span>
+                <span id="loading-card-tip" class="tip-text">Large 2+ GB TIFF stacks contain millions of pixels across multiple SBS cycles. Analysis runs in ~10–12s once buffered in memory.</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+{
+  "model_type": "base_caller",
+  "classifier_type": "gradient_boosting",
+  "target_col": "annotated_base",
+  "feature_names": [
+    "has_blob",
+    "green_has_blob",
+    "red_has_blob",
+    "blob_area",
+    "green_blob_area",
+    "red_blob_area",
+    "rg_ratio_median",
+    "rg_ratio_trimmed",
+    "dist_to_center_norm",
+    "ownership_ratio",
+    "dapi_under_blob_mean",
+    "green_min",
+    "green_p10",
+    "green_p25",
+    "green_median",
+    "green_p75",
+    "green_p90",
+    "green_p95",
+    "green_max",
+    "green_mean",
+    "green_std",
+    "green_iqr",
+    "green_trimmed_mean",
+    "green_upper_core_median",
+    "green_nuc_median",
+    "green_excess_median",
+    "green_integrated_excess",
+    "red_min",
+    "red_p10",
+    "red_p25",
+    "red_median",
+    "red_p75",
+    "red_p90",
+    "red_p95",
+    "red_max",
+    "red_mean",
+    "red_std",
+    "red_iqr",
+    "red_trimmed_mean",
+    "red_upper_core_median",
+    "red_nuc_median",
+    "red_excess_median",
+    "red_integrated_excess"
+  ],
+  "classes": [
+    "A",
+    "C",
+    "G",
+    "T"
+  ],
+  "test_size": 0.2,
+  "random_state": 42,
+  "trained_at": "2026-09-28 13:46:42",
+  "evaluation": "nucleus_group_holdout",
+  "calibration": "stratified_nucleus_group_sigmoid",
+  "final_refit_samples": 1760,
+  "final_refit_nuclei": 1534,
+  "metrics": {
+    "train_samples": 1425,
+    "test_samples": 335,
+    "train_nuclei": 1227,
+    "test_nuclei": 307,
+    "group_overlap": 0,
+    "accuracy": 0.9492537313432836,
+    "balanced_accuracy": 0.9374526586880776,
+    "macro_precision": 0.9485729416882601,
+    "macro_recall": 0.9374526586880776,
+    "macro_f1": 0.9420946549024771,
+    "classes": [
+      "A",
+      "C",
+      "G",
+      "T"
+    ],
+    "class_counts": {
+      "A": 417,
+      "C": 304,
+      "G": 794,
+      "T": 245
+    },
+    "confusion_matrix": [
+      [
+        76,
+        1,
+        5,
+        0
+      ],
+      [
+        0,
+        44,
+        2,
+        0
+      ],
+      [
+        2,
+        1,
+        157,
+        1
+      ],
+      [
+        0,
+        3,
+        2,
+        41
+      ]
+    ],
+    "classification_report": {
+      "A": {
+        "precision": 0.9743589743589743,
+        "recall": 0.926829268292683,
+        "f1-score": 0.95,
+        "support": 82.0
+      },
+      "C": {
+        "precision": 0.8979591836734694,
+        "recall": 0.9565217391304348,
+        "f1-score": 0.9263157894736842,
+        "support": 46.0
+      },
+      "G": {
+        "precision": 0.9457831325301205,
+        "recall": 0.9751552795031055,
+        "f1-score": 0.9602446483180428,
+        "support": 161.0
+      },
+      "T": {
+        "precision": 0.9761904761904762,
+        "recall": 0.8913043478260869,
+        "f1-score": 0.9318181818181818,
+        "support": 46.0
+      },
+      "accuracy": 0.9492537313432836,
+      "macro avg": {
+        "precision": 0.9485729416882601,
+        "recall": 0.9374526586880776,
+        "f1-score": 0.9420946549024771,
+        "support": 335.0
+      },
+      "weighted avg": {
+        "precision": 0.9503862823538114,
+        "recall": 0.9492537313432836,
+        "f1-score": 0.9491747792794947,
+        "support": 335.0
+      }
+    },
+    "log_loss": 0.1733096166954762
+  },
+  "provenance": {
+    "analysis_version": "manual_raw_circle_v1",
+    "input_domain": "raw",
+    "nuclear_diameter": 55.0,
+    "radius_scale": 1.6,
+    "detector_params": {
+      "high_thresh": 4.0,
+      "low_thresh": 2.0,
+      "min_area": 6,
+      "max_area_fraction": 0.6,
+      "alpha": 0.28,
+      "min_excess": 650.0,
+      "green_min_excess": 3500.0,
+      "min_snr": 4.0,
+      "min_p95_excess": 400.0,
+      "min_fold": 2.0
+    },
+    "image_sha256": "cd337ef34681e8d60832fbb7bec5b98b69c31b2ebdb44fc76671f5f9fb962601",
+    "base_source_sha256": "33d788012a4e64e89c40e2358df1cc3dae506f5e9fac9b75d804a9348edfa1eb",
+    "blob_source_sha256": "1db6a2a5cf0cc587ec452edcd5b4c5481856a087a6cd8eea71d38a3bf51d211b",
+    "coordinate_profile_sha256": "e84834bf89d0916c72b82af7acd112fee74dce15962f18906c69dc618b71e624",
+    "label_semantics": "presence_from_original_detection_and_correctness_v1",
+    "coordinate_source": "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/saved_coordinate_profiles.json",
+    "image_path": "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/wellb2_002_002_RGB.tif",
+    "base_source_path": "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/annotated_base_ground_truth.csv",
+    "blob_source_path": "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/annotated_blob_ground_truth.csv",
+    "base_training_labels": "explicit_annotations_only",
+    "excluded_base_labels": [
+      "N"
+    ]
+  }
+}

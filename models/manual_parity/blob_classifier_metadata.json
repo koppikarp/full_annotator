@@ -1,0 +1,142 @@
+{
+  "model_type": "blob_classifier",
+  "classifier_type": "gradient_boosting",
+  "target_col": "any_signal_present",
+  "feature_names": [
+    "has_blob",
+    "green_detected",
+    "red_detected",
+    "green_area",
+    "red_area",
+    "area",
+    "fraction_nucleus_occupied",
+    "median_contrast",
+    "peak_contrast",
+    "upper_quantile_contrast",
+    "integrated_excess_intensity",
+    "spatial_smoothness",
+    "solidity",
+    "eccentricity",
+    "perimeter_to_area_ratio",
+    "persistence_cycles",
+    "distance_from_nuclear_boundary",
+    "saturated_pixel_fraction",
+    "component_count",
+    "peak_excess_green",
+    "peak_excess_red",
+    "max_peak_excess",
+    "fold_change_green",
+    "fold_change_red",
+    "max_fold_change",
+    "bg_green",
+    "bg_red",
+    "noise_green",
+    "noise_red",
+    "dist_to_center_norm",
+    "ownership_ratio",
+    "dapi_under_blob_mean"
+  ],
+  "classes": [
+    "0",
+    "1"
+  ],
+  "test_size": 0.2,
+  "random_state": 42,
+  "trained_at": "2026-09-28 13:46:43",
+  "evaluation": "nucleus_group_holdout",
+  "calibration": "stratified_nucleus_group_sigmoid",
+  "final_refit_samples": 381,
+  "final_refit_nuclei": 381,
+  "metrics": {
+    "train_samples": 304,
+    "test_samples": 77,
+    "train_nuclei": 304,
+    "test_nuclei": 77,
+    "group_overlap": 0,
+    "accuracy": 0.961038961038961,
+    "balanced_accuracy": 0.9605263157894737,
+    "weighted_precision": 0.9638218923933211,
+    "weighted_recall": 0.961038961038961,
+    "weighted_f1": 0.9609598924667416,
+    "classes": [
+      "0",
+      "1"
+    ],
+    "class_counts": {
+      "0": 209,
+      "1": 172
+    },
+    "confusion_matrix": [
+      [
+        39,
+        0
+      ],
+      [
+        3,
+        35
+      ]
+    ],
+    "classification_report": {
+      "0": {
+        "precision": 0.9285714285714286,
+        "recall": 1.0,
+        "f1-score": 0.9629629629629629,
+        "support": 39.0
+      },
+      "1": {
+        "precision": 1.0,
+        "recall": 0.9210526315789473,
+        "f1-score": 0.958904109589041,
+        "support": 38.0
+      },
+      "accuracy": 0.961038961038961,
+      "macro avg": {
+        "precision": 0.9642857142857143,
+        "recall": 0.9605263157894737,
+        "f1-score": 0.960933536276002,
+        "support": 77.0
+      },
+      "weighted avg": {
+        "precision": 0.9638218923933211,
+        "recall": 0.961038961038961,
+        "f1-score": 0.9609598924667416,
+        "support": 77.0
+      }
+    },
+    "log_loss": 0.1484513424144896,
+    "prob_threshold": 0.7,
+    "roc_auc": 0.9844804318488528
+  },
+  "provenance": {
+    "analysis_version": "manual_raw_circle_v1",
+    "input_domain": "raw",
+    "nuclear_diameter": 55.0,
+    "radius_scale": 1.6,
+    "detector_params": {
+      "high_thresh": 4.0,
+      "low_thresh": 2.0,
+      "min_area": 6,
+      "max_area_fraction": 0.6,
+      "alpha": 0.28,
+      "min_excess": 650.0,
+      "green_min_excess": 3500.0,
+      "min_snr": 4.0,
+      "min_p95_excess": 400.0,
+      "min_fold": 2.0
+    },
+    "image_sha256": "cd337ef34681e8d60832fbb7bec5b98b69c31b2ebdb44fc76671f5f9fb962601",
+    "base_source_sha256": "33d788012a4e64e89c40e2358df1cc3dae506f5e9fac9b75d804a9348edfa1eb",
+    "blob_source_sha256": "1db6a2a5cf0cc587ec452edcd5b4c5481856a087a6cd8eea71d38a3bf51d211b",
+    "coordinate_profile_sha256": "e84834bf89d0916c72b82af7acd112fee74dce15962f18906c69dc618b71e624",
+    "label_semantics": "presence_from_original_detection_and_correctness_v1",
+    "coordinate_source": "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/saved_coordinate_profiles.json",
+    "image_path": "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/wellb2_002_002_RGB.tif",
+    "base_source_path": "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/annotated_base_ground_truth.csv",
+    "blob_source_path": "/Users/pratik/Development/Project/shamchal_view_popcrop_revision/annotated_blob_ground_truth.csv",
+    "base_training_labels": "explicit_annotations_only",
+    "excluded_base_labels": [
+      "N"
+    ]
+  },
+  "prob_threshold": 0.7
+}

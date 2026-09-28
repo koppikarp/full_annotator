@@ -1,0 +1,73 @@
+analysis_mode: manual
+manual_analysis:
+  nuclear_diameter: 55.0
+  radius_scale: 1.6
+  batch_size: 64
+  signal_probability_threshold: 0.70
+plate_id: "Plate1"
+well_id: "WellB2"
+tile_id: "Tile1"
+random_seed: 42
+channel_names:
+  - "Red"
+  - "Green"
+has_dapi_cycle: true
+
+preprocessing:
+  camera_offset: 0.0
+  do_field_flattening: false
+  field_flattening_mode: "retrospective"
+  field_flattening_per_cycle: true
+  field_flattening_per_well: true
+  reference_flatfield_path: null
+  registration_method: "none"
+  registration_channel: 0
+  chromatic_registration: false
+  chromatic_shift_red_green: [0.0, 0.0]
+  psf_matching: false
+  psf_target_sigma: 1.0
+  saturation_threshold: 65520.0
+  unmixing_matrix: null
+
+blob_detection:
+  bg_filter_size: 35
+  bg_quantile: 0.15
+  noise_estimator: "mad"
+  top_k_cycles: 3
+  persistence_threshold: 2.5
+  hysteresis_high: 4.0
+  hysteresis_low: 2.0
+  min_blob_area: 8
+  max_blob_fraction: 0.95
+
+blob_classifier:
+  model_path: null
+  prob_threshold: 0.50
+  use_heuristic_fallback: true
+  classifier_type: "logistic_regression"
+
+color_calling:
+  core_distance_percentile: 0.35
+  min_core_pixels: 4
+  min_connected_yellow_core: 4
+  yellow_core_min_ratio: 0.20
+  green_rim_override_protection: true
+  max_spatial_separation: 4.0
+  min_colocalization_overlap: 0.25
+  calibrated_color_model_path: null
+
+decoding:
+  barcode_column: barcode_new
+  codebook_path: null
+  min_score_margin: 0.8
+  min_confidence: 0.60
+  allow_recombination: false
+  max_hamming_distance: 2
+
+output:
+  output_dir: "popcrop_output"
+  save_probability_maps: true
+  save_masks: true
+  save_diagnostics: true
+  diagnostic_max_cells: 12
+  export_format: "parquet"

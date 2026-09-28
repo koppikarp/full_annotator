@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+popcrop_output/
+popcrop/annotation/uploads/
+*.egg-info/
+build/
+dist/
+
+# Stored losslessly in the private reference-data-v1 GitHub release.
+/wellb2_002_002_RGB.tif

@@ -1,0 +1,30 @@
+{
+  "source": "popcrop_output/wellb2_002_002/Plate1_B2_14_masks.npz",
+  "nuclei": 5378,
+  "saved_components": 896,
+  "saved_nuclei_with_components": 797,
+  "source_saved_run_configuration_available": false,
+  "reconstruction_assumed_config": {
+    "hysteresis_high": 4.0,
+    "hysteresis_low": 2.0,
+    "min_blob_area": 8,
+    "max_blob_fraction": 0.95
+  },
+  "probability_thresholds": {
+    "low": 0.2689414213699951,
+    "high": 0.7310585786300049
+  },
+  "raw_global_connected_components": 5747,
+  "raw_components_within_nuclei": 5920,
+  "nuclei_with_raw_candidates": 5378,
+  "reconstructed_accepted_components": 896,
+  "reconstructed_nuclei_with_components": 797,
+  "rejected_oversized_components": 4597,
+  "nuclei_with_oversized_components": 4597,
+  "nuclei_with_only_oversized_rejections": 4581,
+  "nuclei_with_accepted_and_oversized_components": 16,
+  "nuclei_total_raw_coverage_gt95percent": 4606,
+  "nuclei_without_saved_components": 4581,
+  "reconstructed_saved_binary_mask_mismatched_pixels": 0,
+  "caveat": "Saved output has no run configuration. Current archived defaults are tested by exact final-mask reproduction. A monotone sigmoid converts high/low 4/2 to the stated thresholds; saturation at 0 or 1 does not affect those interior thresholds. Occupancy sums per nucleus and oversized per-component rejection are reported separately."
+}

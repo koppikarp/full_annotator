@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "popcrop"
+version = "0.1.0"
+description = "Production-quality pipeline for detecting and base-calling extended fluorescent signals in optical pooled screening."
+readme = "README.md"
+authors = [{ name = "Computational Imaging Engineer" }]
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "scikit-image>=0.21.0",
+    "scikit-learn>=1.3.0",
+    "pandas>=2.0.0",
+    "tifffile>=2023.4.12",
+    "pyyaml>=6.0",
+    "matplotlib>=3.7.0",
+    "pyarrow>=14.0.0",
+    "flask>=2.0.0"
+]
+
+[project.optional-dependencies]
+torch = ["torch>=2.0.0"]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0"
+]
+
+[project.scripts]
+popcrop = "popcrop.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["popcrop*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
